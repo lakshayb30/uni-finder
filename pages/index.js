@@ -127,8 +127,17 @@ export default function Home() {
         );
         setResults(filteredResults);
     };
-    const handleBookmark = () => {    
-        router.push('/bookmark');
+    const handleBookmark = () => {
+        if (!session) {
+            // If user is not logged in, redirect to login or show an alert
+            alert("You need to log in to use the bookmark feature.");
+            router.push('/login'); // Alternatively, you can use signIn() to redirect to login
+            return;
+          }
+
+        else{
+            router.push('/bookmark');
+        }
     }
 
     const handleApplication = () => {
