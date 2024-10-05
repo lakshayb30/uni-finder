@@ -120,11 +120,19 @@ export default function Home() {
     const [results, setResults] = useState([]);
 
     const handleSearch = () => {
-        const filteredResults = universities.filter(university =>
-        university.name.toLowerCase().includes(search.toLowerCase()) &&
-        university.location.toLowerCase().includes(location.toLowerCase()) &&
-        university.courses.some(course => course.toLowerCase().includes(Course.toLowerCase()))
-        );
+        console.log('handleSearch function called');
+        let filteredResults = [];
+        if(!search || !location || !Course){
+            console.log("reached if")
+            return;
+        }else{
+            console.log("reached else")
+            filteredResults = universities.filter(university =>
+                university.name.toLowerCase().includes(search.toLowerCase()) &&
+                university.location.toLowerCase().includes(location.toLowerCase()) &&
+                university.courses.some(course => course.toLowerCase().includes(Course.toLowerCase()))
+            );
+        }
         setResults(filteredResults);
     };
     const handleBookmark = () => {
@@ -147,51 +155,69 @@ export default function Home() {
     
 
     return (
-        <div>
-        <h1>Find Universities and Courses</h1>
+        <div style={{ fontFamily: 'Arial, sans-serif' }}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div style={{paddingLeft:'5%',}}>
+                    <h1>UniFinder</h1>
+                </div>
+                
+                <div style={{display:'flex',paddingRight:'10%'}}>
+                    <button style={{marginRight:'10%',backgroundColor:'black',color:'white',padding:'5%',borderRadius:'27vw',cursor:"pointer"}} onClick = {handleBookmark}>Bookmark</button>
+                    <button style={{marginRight:'10%',backgroundColor:'black',color:'white',padding:'5%',borderRadius:'27vw',cursor:"pointer"}} onClick = {handleApplication}>Apply</button>
+                    {session && (
+                    <button className="m-2 p-2 bg-blue-500" style={{marginRight:'10%',backgroundColor:'black',color:'white',padding:'5%',borderRadius:'27vw',cursor:"pointer"}} onClick={() => signOut()}>
+                    Logout
+                    </button>
+                    )}
+                    {!session && (
+                    <button className="m-2 p-2 bg-blue-500" style={{marginRight:'10%',backgroundColor:'black',color:'white',padding:'5%',borderRadius:'27vw',cursor:"pointer"}} onClick={() => signIn()}>
+                    Login
+                    </button>
+                    )}
+                </div>
+                
+            </div>
+        
+            <div style={{display:'flex',justifyContent:'space-evenly',paddingTop:'50%',paddingTop:'5%'}}>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Search university"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Course"
+                        value={Course}
+                        onChange={(e) => setCourse(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <button onClick={handleSearch}>Search</button>
+                </div>
+            </div>
+        
+            
+            
+            
+        
 
-        <input
-            type="text"
-            placeholder="Search university"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-        />
-        <input
-            type="text"
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-        />
-        <input
-            type="text"
-            placeholder="Course"
-            value={Course}
-            onChange={(e) => setCourse(e.target.value)}
-        />
-        <button onClick={handleSearch}>Search</button>
-        <button onClick = {handleBookmark}>Bookmark</button>
-        <button onClick = {handleApplication}>Apply</button>
-        {session && (
-        <button className="m-2 p-2 bg-blue-500" onClick={() => signOut()}>
-          Logout
-        </button>
-        )}
-        {!session && (
-        <button className="m-2 p-2 bg-blue-500" onClick={() => signIn()}>
-          Login
-        </button>
-        )}
-     
-
-        <ul>
-            {results.map(university => (
-            <li key={university.id}>
-                <Link legacyBehavior href={`/university/${university.id}`}>
-                <a>{university.name} - {university.location}</a>
-                </Link>
-            </li>
-            ))}
-        </ul>
+            <ul>
+                {results.map(university => (
+                <li key={university.id}>
+                    <Link legacyBehavior href={`/university/${university.id}`}>
+                    <a>{university.name} - {university.location}</a>
+                    </Link>
+                </li>
+                ))}
+            </ul>
         </div>
     );
 }
