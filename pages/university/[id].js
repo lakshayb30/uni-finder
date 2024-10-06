@@ -1,7 +1,6 @@
-// pages/university/[id].js
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-
+import { useSession, signOut } from 'next-auth/react';
 const universities = [
   { id: 1, name: 'University of Oxford', location: 'Oxford, UK', courses: ['Computer Science', 'Engineering'] },
   { id: 2, name: 'Harvard University', location: 'Cambridge, USA', courses: ['Law', 'Business'] },
@@ -12,7 +11,7 @@ const universities = [
   { id: 7, name: 'University of Tokyo', location: 'Tokyo, Japan', courses: ['Mechanical Engineering', 'Chemistry'] },
   { id: 8, name: 'ETH Zurich', location: 'Zurich, Switzerland', courses: ['Engineering', 'Environmental Science'] },
   { id: 9, name: 'University of Melbourne', location: 'Melbourne, Australia', courses: ['Law', 'Medicine'] },
-  { id: 10, name: 'Indian Institute of Technology (IIT) Delhi', location: 'Delhi, India', courses: ['Engineering', 'Physics'] },
+  { id: 10, name: 'Indian Institute of Technology (IIT) Bombay', location: 'Maharashtra, India', courses: ['Engineering', 'Physics'] },
   { id: 11, name: 'California Institute of Technology (Caltech)', location: 'Pasadena, USA', courses: ['Physics', 'Astronomy'] },
   { id: 12, name: 'University of Chicago', location: 'Chicago, USA', courses: ['Economics', 'Law'] },
   { id: 13, name: 'Tsinghua University', location: 'Beijing, China', courses: ['Computer Science', 'Engineering'] },
@@ -102,26 +101,87 @@ const universities = [
   { id: 97, name: 'University of São Paulo', location: 'São Paulo, Brazil', courses: ['Medicine', 'Engineering'] },
   { id: 98, name: 'Pontifical Catholic University of Chile', location: 'Santiago, Chile', courses: ['Business', 'Law'] },
   { id: 99, name: 'University of Cape Town', location: 'Cape Town, South Africa', courses: ['Law', 'Economics'] },
-  { id: 100, name: 'Aarhus University', location: 'Aarhus, Denmark', courses: ['Business', 'Political Science'] }
-]
-
-
+  { id: 100, name: 'Aarhus University', location: 'Aarhus, Denmark', courses: ['Business', 'Political Science'] },
+  { id: 101, name: 'University of Delhi', location: 'New Delhi, India', courses: ['Arts', 'Science', 'Commerce', 'Law', 'Engineering'] },
+  { id: 102, name: 'Indian Institute of Technology Delhi (IIT Delhi)', location: 'New Delhi, India', courses: ['Computer Science', 'Mechanical Engineering', 'Civil Engineering', 'Electrical Engineering'] },
+  { id: 103, name: 'Jawaharlal Nehru University (JNU)', location: 'New Delhi, India', courses: ['International Relations', 'Political Science', 'Linguistics', 'Environmental Sciences'] },
+  { id: 104, name: 'Jamia Millia Islamia', location: 'New Delhi, India', courses: ['Mass Communication', 'Engineering', 'Social Sciences', 'Law'] },
+  { id: 105, name: 'Indira Gandhi National Open University (IGNOU)', location: 'New Delhi, India', courses: ['Distance Education', 'Management', 'Arts', 'Commerce'] },
+  { id: 106, name: 'Sri Venkateswara College', location: 'New Delhi, India', courses: ['Biochemistry', 'Chemistry', 'Economics', 'Commerce'] },
+  { id: 107, name: 'St. Stephen’s College', location: 'New Delhi, India', courses: ['Economics', 'History', 'English Literature', 'Physics'] },
+  { id: 108, name: 'Hansraj College', location: 'New Delhi, India', courses: ['Commerce', 'English', 'Mathematics', 'Botany'] },
+  { id: 109, name: 'Lady Shri Ram College for Women', location: 'New Delhi, India', courses: ['Psychology', 'Economics', 'Political Science', 'Journalism'] },
+  { id: 110, name: 'Miranda House', location: 'New Delhi, India', courses: ['Chemistry', 'Physics', 'English', 'History'] },
+  { id: 111, name: 'Delhi College of Arts and Commerce (DCAC)', location: 'New Delhi, India', courses: ['Journalism', 'Political Science', 'Economics', 'Commerce'] },
+  { id: 112, name: 'Ramjas College', location: 'New Delhi, India', courses: ['Botany', 'Economics', 'Political Science', 'Commerce'] },
+  { id: 113, name: 'Shri Ram College of Commerce (SRCC)', location: 'New Delhi, India', courses: ['Economics', 'Commerce', 'Management'] },
+  { id: 114, name: 'Daulat Ram College', location: 'New Delhi, India', courses: ['English', 'History', 'Botany', 'Political Science'] },
+  { id: 115, name: 'Kirori Mal College', location: 'New Delhi, India', courses: ['Chemistry', 'Political Science', 'Economics', 'English'] },
+  { id: 116, name: 'Jesus and Mary College (JMC)', location: 'New Delhi, India', courses: ['English', 'Political Science', 'Commerce', 'Economics'] },
+  { id: 117, name: 'Maitreyi College', location: 'New Delhi, India', courses: ['Biology', 'English', 'Sociology', 'Mathematics'] },
+  { id: 118, name: 'Zakir Husain Delhi College', location: 'New Delhi, India', courses: ['History', 'Political Science', 'Mathematics', 'Physics'] },
+  { id: 119, name: 'Shaheed Bhagat Singh College', location: 'New Delhi, India', courses: ['Commerce', 'Political Science', 'History', 'Economics'] },
+  { id: 120, name: 'Gargi College', location: 'New Delhi, India', courses: ['Chemistry', 'Microbiology', 'Economics', 'Political Science'] },
+  { id: 121, name: 'Acharya Narendra Dev College', location: 'New Delhi, India', courses: ['Chemistry', 'Mathematics', 'Computer Science', 'Biological Sciences'] },
+  { id: 122, name: 'Bhaskaracharya College of Applied Sciences', location: 'New Delhi, India', courses: ['Computer Science', 'Electronics', 'Biomedical Sciences', 'Microbiology'] },
+  { id: 123, name: 'Indraprastha College for Women', location: 'New Delhi, India', courses: ['Economics', 'Computer Science', 'Political Science', 'Psychology'] },
+  { id: 124, name: 'Atma Ram Sanatan Dharma College', location: 'New Delhi, India', courses: ['Political Science', 'History', 'Chemistry', 'Physics'] },
+  { id: 125, name: 'Delhi Technological University (DTU)', location: 'New Delhi, India', courses: ['Computer Science', 'Mechanical Engineering', 'Electrical Engineering', 'Civil Engineering'] },
+  { id: 126, name: 'Netaji Subhas University of Technology (NSUT)', location: 'New Delhi, India', courses: ['Computer Science', 'Mechanical Engineering', 'Electronics', 'Information Technology'] },
+  { id: 127, name: 'National Institute of Fashion Technology (NIFT) Delhi', location: 'New Delhi, India', courses: ['Fashion Design', 'Textile Design', 'Fashion Communication'] },
+  { id: 128, name: 'Maharaja Agrasen College', location: 'New Delhi, India', courses: ['Political Science', 'Electronics', 'Journalism', 'Commerce'] },
+  { id: 129, name: 'College of Vocational Studies', location: 'New Delhi, India', courses: ['Tourism', 'Marketing Management', 'Commerce', 'History'] },
+  { id: 130, name: 'Shaheed Sukhdev College of Business Studies', location: 'New Delhi, India', courses: ['Business Studies', 'Finance', 'Marketing', 'Entrepreneurship'] },
+  { id: 131, name: 'Vivekananda College', location: 'New Delhi, India', courses: ['History', 'Political Science', 'English', 'Botany'] },
+  { id: 132, name: 'Lakshmibai College', location: 'New Delhi, India', courses: ['Political Science', 'Economics', 'Commerce', 'Mathematics'] },
+  { id: 133, name: 'Shivaji College', location: 'New Delhi, India', courses: ['Mathematics', 'Physics', 'History', 'Political Science'] },
+  { id: 134, name: 'PGDAV College', location: 'New Delhi, India', courses: ['Commerce', 'Economics', 'Political Science', 'History'] },
+  { id: 135, name: 'Kalindi College', location: 'New Delhi, India', courses: ['Political Science', 'Commerce', 'Mathematics', 'Journalism'] },
+  { id: 136, name: 'Shyama Prasad Mukherji College for Women', location: 'New Delhi, India', courses: ['Commerce', 'Political Science', 'Mathematics', 'Psychology'] },
+  { id: 137, name: 'Bhagini Nivedita College', location: 'New Delhi, India', courses: ['Commerce', 'English', 'Political Science', 'Mathematics'] },
+  { id: 138, name: 'Aditi Mahavidyalaya', location: 'New Delhi, India', courses: ['Commerce', 'Geography', 'Political Science', 'Social Work'] },
+  { id: 139, name: 'Aryabhatta College', location: 'New Delhi, India', courses: ['Political Science', 'History', 'Commerce', 'Economics'] },
+  { id: 140, name: 'Keshav Mahavidyalaya', location: 'New Delhi, India', courses: ['Computer Science', 'Commerce', 'Mathematics', 'Psychology'] },
+  { id: 141, name: 'Ramanujan College', location: 'New Delhi, India', courses: ['Commerce', 'Political Science', 'Computer Science', 'Economics'] },
+  { id: 142, name: 'Motilal Nehru College', location: 'New Delhi, India', courses: ['Commerce', 'Political Science', 'History', 'Mathematics'] },
+  { id: 143, name: 'Bhaskraycharya College of Applied Sciences', location: 'New Delhi, India', courses: ['Computer Science', 'Electronics', 'Biotechnology', 'Biochemistry'] },
+  { id: 144, name: 'Sri Guru Gobind Singh College of Commerce', location: 'New Delhi, India', courses: ['Commerce', 'Economics', 'Computer Science', 'Management'] },
+  { id: 145, name: 'Deen Dayal Upadhyaya College', location: 'New Delhi, India', courses: ['Botany', 'Zoology', 'Commerce', 'Physics'] },
+  { id: 146, name: 'Institute of Home Economics', location: 'New Delhi, India', courses: ['Home Science', 'Nutrition', 'Biochemistry', 'Textile Design'] },
+  { id: 147, name: 'Bhim Rao Ambedkar College', location: 'New Delhi, India', courses: ['Social Work', 'Political Science',]}
+];
 export default function UniversityDetail() {
   const router = useRouter();
   const { id } = router.query;
-
+  const { data: session, status } = useSession();
   const [university, setUniversity] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
-
-  // Fetch the university data based on the ID
+  const handleSearch = () => {
+    let filteredResults = [];
+    if(search || location || Course){
+        filteredResults = universities.filter(university =>
+            university.name.toLowerCase().includes(search.toLowerCase()) &&
+            university.location.toLowerCase().includes(location.toLowerCase()) &&
+            university.courses.some(course => course.toLowerCase().includes(Course.toLowerCase()))
+        );
+    if(filteredResults.length === 0){
+        setMessage('No results found.');
+        return;
+    }}else{
+        alert("Please enter a search term.");
+        return;
+    } 
+    setResults(filteredResults);
+};
+  const handleApplication = () => {
+    router.push('/apply');
+  }
   useEffect(() => {
     if (id) {
       const uni = universities.find(u => u.id == id);
       setUniversity(uni);
     }
   }, [id]);
-
-  // Check if the university is already bookmarked
   useEffect(() => {
     if (typeof window !== 'undefined' && university) {
       const savedBookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
@@ -129,41 +189,43 @@ export default function UniversityDetail() {
       setIsBookmarked(bookmarked);
     }
   }, [university]);
-
   const handleBookmark = () => {
     if (typeof window !== 'undefined' && university) {
       const savedBookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
       const bookmarkExists = savedBookmarks.some(bookmark => bookmark.id === university.id);
-
       let updatedBookmarks;
       if (bookmarkExists) {
-        // Remove bookmark
         updatedBookmarks = savedBookmarks.filter(bookmark => bookmark.id !== university.id);
         setIsBookmarked(false);
       } else {
-        // Add bookmark
         updatedBookmarks = [...savedBookmarks, university];
         setIsBookmarked(true);
       }
-
       localStorage.setItem('bookmarks', JSON.stringify(updatedBookmarks));
     }
   };
-
   if (!university) return <p>Loading...</p>;
-
   return (
-    <div>
+    <div style={{fontFamily:'arial, sans-serif'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',borderBottom:'1px solid black'}}>
+                <div style={{paddingLeft:'5%',}}>
+                    <a href='/' style={{textDecoration:'none',color:'black'}}><h1>UniFinder</h1></a>   
+                </div>
+                <div style={{display:'flex',paddingRight:'10%'}}>
+                    <img src='/images/bookmark.png' alt='Bookmark' onClick = {handleBookmark} style={{width:'2vw',cursor:"pointer",marginRight:'20%'}}/>
+                    <img src='/images/apply.png' alt='apply' onClick = {handleApplication} style={{cursor:"pointer",width:'2vw',marginRight:'20%'}}/>
+                    {session && (<img src='/images/logout.png' alt='logout' onClick={() => signOut()} style={{cursor:"pointer",width:'2vw',marginRight:'20%'}}/>)}
+                    {!session && (<img src='/images/login.png' alt='login' onClick={() => signIn()} style={{cursor:"pointer",width:'2vw',marginRight:'20%'}}/>)}
+                </div>
+      </div>
       <h1>{university.name}</h1>
       <p>{university.location}</p>
-
       <h2>Courses Offered</h2>
       <ul>
         {university.courses.map((course, index) => (
           <li key={index}>{course}</li>
         ))}
       </ul>
-
       <button onClick={handleBookmark}>
         {isBookmarked ? 'Remove Bookmark' : 'Bookmark this University'}
       </button>
