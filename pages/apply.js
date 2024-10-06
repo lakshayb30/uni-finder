@@ -43,11 +43,11 @@ export default function Apply() {
             onChange={(e) => setFormData({ ...formData, university: e.target.value })}
             >
             <option value="">Select University</option>
-            {universities.map((university) => (
+            {universities ? universities.map((university) => (
                 <option key={university.id} value={university.id}>
-                {university.name}
+                    {university.name}
                 </option>
-            ))}
+            )) : null}
             </select>
             <button type="submit">Submit Application</button>
             <button onClick={returnback}>Cancel</button>
